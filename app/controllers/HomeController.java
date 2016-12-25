@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import views.html.*;
 
 // Import models
-import models.*;
+import models.Product;
 
 
 public class HomeController extends Controller {
@@ -71,7 +71,12 @@ public class HomeController extends Controller {
         Product newProduct = newProductForm.get();
 
         // Save to the database via Ebean (remember Product extends Model)
-        newProduct.save();
+       if(newProduct.getId() == null) {
+		 newProduct.save();
+}
+	else if (newProduct.getId() != null) {
+		newProduct.update();
+}
 
         // Set a success message in temporary flash
         // for display in return view
@@ -92,4 +97,25 @@ public class HomeController extends Controller {
         // Redirect to products page
         return redirect(routes.HomeController.products());
     }
+
+	@Transactional
+	public Result updateProduct(Long id) {
+
+		Product p;
+		Form<Product> productForm;
+
+		try {	
+			p = Product.find.byId(id);
+
+
+			productForm = formFactory.form(Product.class).fill(p);
+
+}	catch(Exception ex) {
+		return badRequest("error");
+}
+
+	return ok(addProduct.render(productForm));
+
+}
+
 }
